@@ -1,5 +1,3 @@
-using System;
-using System.Data;
 using Dapper;
 using System.Linq;
 using NUnit.Framework;
@@ -9,28 +7,30 @@ namespace Crate.Client
 {
 	public class IntegrationTest
 	{
-        private static CrateCluster CLUSTER = null;
+        private static CrateCluster _cluster = null;
 
-        [TestFixtureSetUp]
-        public static void setUpCrateCluster()
+        [OneTimeSetUp]
+        public static void SetUpCrateCluster()
         {
-            if (CLUSTER == null) {
-                CLUSTER = new CrateCluster("crate-testing", "0.52.4");
-                CLUSTER.Start();
-            }
+            if (_cluster != null)
+                return;
+
+            _cluster = new CrateCluster("crate-testing", "0.52.4");
+            _cluster.Start();
         }
 
-        [TestFixtureTearDown]
-        public static void tearDownCrateCluster()
+        [OneTimeTearDown]
+        public static void TearDownCrateCluster()
         {
-            if (CLUSTER != null) {
-                CLUSTER.Stop();
-                CLUSTER = null;
-            }
+            if (_cluster == null)
+                return;
+
+            _cluster.Stop();
+            _cluster = null;
         }
 
 		[Test]
-		public void testSelect ()
+		public void TestSelect ()
 		{
 			using (var conn = new CrateConnection()) {
 				conn.Open();
@@ -38,27 +38,27 @@ namespace Crate.Client
 				using (var cmd = new CrateCommand("select name from sys.cluster", conn)) {
 					var reader = cmd.ExecuteReader();
 					reader.Read();
-					string clusterName = reader.GetString(0);
+					var clusterName = reader.GetString(0);
 					Assert.AreEqual(clusterName, "crate");
 				}
 			}
 		}
 
 		[Test]
-		public void testSelectServerRoundrobin()
+		public void TestSelectServerRoundrobin()
 		{
 			using (var conn = new CrateConnection("localhost:9999, localhost:4200")) {
 				conn.Open();
 
-				for (int i = 0; i < 10; i++) {
-					string clusterName = conn.Query<string>("select name from sys.cluster").First();
+				for (var i = 0; i < 10; i++) {
+					var clusterName = conn.Query<string>("select name from sys.cluster").First();
 					Assert.AreEqual("crate", clusterName);
 				}
 			}
 		}
 
 		[Test]
-		public void testWithDapper()
+		public void TestWithDapper()
 		{
 			using (var conn = new CrateConnection()) {
 				conn.Open();
@@ -74,7 +74,7 @@ namespace Crate.Client
 				Assert.AreEqual(1,
 					conn.Execute("insert into foo (id, name) values (?, ?)", new { id = 1, name = "foo"}));
 
-				int rowsAffected = conn.Execute(
+				var rowsAffected = conn.Execute(
 					"insert into foo (id, name) values (?, ?), (?, ?)",
 					new { id1 = 2, name1 = "zwei", id2 = 3, name2 = "drei"}
 				);

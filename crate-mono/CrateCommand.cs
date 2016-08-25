@@ -8,15 +8,15 @@ namespace Crate.Client
 {
 	public class CrateCommand : IDbCommand
 	{
-		private CrateConnection connection;
-		private CrateParameterCollection parameters = new CrateParameterCollection();
+		private readonly CrateConnection _connection;
+		private readonly CrateParameterCollection _parameters = new CrateParameterCollection();
 
 		public string CommandText { get; set; }
 		public int CommandTimeout { get; set; }
 
 		public IDbConnection Connection {
 			get {
-				return connection;
+				return _connection;
 			}
 			set {
 				throw new InvalidOperationException();
@@ -26,7 +26,7 @@ namespace Crate.Client
 		public CrateCommand (string commandText, CrateConnection connection)
 		{
 			CommandText = commandText;
-			this.connection = connection;
+			_connection = connection;
 		}
 
 		#region IDbCommand implementation
@@ -50,7 +50,7 @@ namespace Crate.Client
 
 		public async Task<int> ExecuteNonQueryAsync ()
 		{
-			return (await execute()).rowcount;
+			return (await Execute()).Rowcount;
 		}
 
 		public IDataReader ExecuteReader()
@@ -60,25 +60,25 @@ namespace Crate.Client
 			return task.Result;
 		}
 
-		protected async Task<SqlResponse> execute(int currentRetry = 0)
+		protected async Task<SqlResponse> Execute(int currentRetry = 0)
 		{
-            var server = connection.nextServer();
+            var server = _connection.NextServer();
             try {
                 return await SqlClient.Execute(
-                        server.sqlUri(),
-                        new SqlRequest(CommandText, parameters.Select(x => x.Value).ToArray()));
+                        server.SqlUri(),
+                        new SqlRequest(CommandText, _parameters.Select(x => x.Value).ToArray()));
             } catch (WebException) {
-                connection.markAsFailed(server);
+                _connection.MarkAsFailed(server);
                 if (currentRetry > 3) {
                     throw;
                 }
-                return await execute(currentRetry++);
+                return await Execute(currentRetry++);
             }
         }
 
 		public async Task<IDataReader> ExecuteReaderAsync ()
 		{
-			return new CrateDataReader(await execute());
+			return new CrateDataReader(await Execute());
 		}
 
 		public IDataReader ExecuteReader (CommandBehavior behavior)
@@ -101,13 +101,9 @@ namespace Crate.Client
 
 		public CommandType CommandType { get; set; }
 
-		public IDataParameterCollection Parameters {
-			get {
-				return parameters;
-			}
-		}
+		public IDataParameterCollection Parameters => _parameters;
 
-		public IDbTransaction Transaction {
+	    public IDbTransaction Transaction {
 			get {
 				throw new NotImplementedException ();
 			}

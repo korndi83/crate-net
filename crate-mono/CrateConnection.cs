@@ -1,12 +1,8 @@
 using System;
-using System.Linq;
 using System.Data;
-using System.Net.Http;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Net;
 using System.Diagnostics;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Crate.Client
@@ -14,7 +10,7 @@ namespace Crate.Client
 	[DebuggerDisplay("<CrateServer {Hostname}:{Port}>")]
 	public class CrateServer
 	{
-		private readonly Regex serverRex = new Regex(@"^(https?)?(://)?([^:]*):?(\d*)$");
+		private readonly Regex _serverRex = new Regex(@"^(https?)?(://)?([^:]*):?(\d*)$");
 
 		public string Scheme { get; set; }
 		public string Hostname { get; set; }
@@ -22,7 +18,7 @@ namespace Crate.Client
 
 		public CrateServer () : this(null) {}
 
-		public CrateServer(String server)
+		public CrateServer(string server)
 		{
             Hostname = "localhost";
             Scheme = "http";
@@ -31,68 +27,69 @@ namespace Crate.Client
 				return;
 			}
 
-			var m = serverRex.Match(server);
-			if (m.Success) {
-				Scheme = string.IsNullOrEmpty(m.Groups[1].Value) ? "http" : m.Groups[1].Value;
-				Hostname = string.IsNullOrEmpty(m.Groups[3].Value) ? "localhost" : m.Groups[3].Value;
-				Port = int.Parse(string.IsNullOrEmpty(m.Groups[4].Value) ? "4200" : m.Groups[4].Value);
-			}
+			var m = _serverRex.Match(server);
+
+		    if (!m.Success)
+                return;
+
+		    Scheme = string.IsNullOrEmpty(m.Groups[1].Value) ? "http" : m.Groups[1].Value;
+		    Hostname = string.IsNullOrEmpty(m.Groups[3].Value) ? "localhost" : m.Groups[3].Value;
+		    Port = int.Parse(string.IsNullOrEmpty(m.Groups[4].Value) ? "4200" : m.Groups[4].Value);
 		}
 
-		public string sqlUri() {
+		public string SqlUri() {
 			return string.Format("{0}://{1}:{2}/_sql", Scheme, Hostname, Port);
 		}
 	}
 
 	public class CrateConnection : IDbConnection
 	{
-		private string connectionString;
-		private ConnectionState state;
-		private List<CrateServer> allServers;
-		private int currentServer = 0;
-		private object lockObj = new object();
-		public List<CrateServer> activeServers { get; private set; }
+	    private readonly List<CrateServer> _allServers;
+		private int _currentServer = 0;
+		private readonly object _lockObj = new object();
+
+		public List<CrateServer> ActiveServers { get; private set; }
 
 		public CrateConnection () : this("localhost:4200") {}
 
-		public CrateConnection (String connectionString)
+		public CrateConnection (string connectionString)
 		{
-			allServers = new List<CrateServer>();
+			_allServers = new List<CrateServer>();
 			foreach (var server in connectionString.Split (',')) {
-				allServers.Add(new CrateServer(server.Trim()));
+				_allServers.Add(new CrateServer(server.Trim()));
 			}
-			this.activeServers = allServers;
-			this.connectionString = connectionString;
-			this.state = ConnectionState.Closed;
+			ActiveServers = _allServers;
+			ConnectionString = connectionString;
+			State = ConnectionState.Closed;
 		}
 
-		public CrateServer nextServer() {
-			lock (lockObj) {
-				var server = activeServers[currentServer];
-				currentServer++;
-				if (currentServer >= activeServers.Count) {
-					currentServer = 0;
+		public CrateServer NextServer() {
+			lock (_lockObj) {
+				var server = ActiveServers[_currentServer];
+				_currentServer++;
+				if (_currentServer >= ActiveServers.Count) {
+					_currentServer = 0;
 				}
 				return server;
 			}
 		}
 
-		public void markAsFailed (CrateServer server)
+		public void MarkAsFailed (CrateServer server)
 		{
-			lock (lockObj) {
-				if (activeServers.Count == 1) {
-					activeServers = allServers;
+			lock (_lockObj) {
+				if (ActiveServers.Count == 1) {
+					ActiveServers = _allServers;
 				}
-				activeServers.Remove(server);
-				Task.Delay(TimeSpan.FromMinutes(3)).ContinueWith(x => addServer(server));
-				currentServer = 0;
+				ActiveServers.Remove(server);
+				Task.Delay(TimeSpan.FromMinutes(3)).ContinueWith(x => AddServer(server));
+				_currentServer = 0;
 			}
 		}
 
-		private void addServer (CrateServer server) {
-			lock (lockObj) {
-				if (!activeServers.Contains(server)) {
-					activeServers.Add(server);
+		private void AddServer (CrateServer server) {
+			lock (_lockObj) {
+				if (!ActiveServers.Contains(server)) {
+					ActiveServers.Add(server);
 				}
 			}
 		}
@@ -116,7 +113,7 @@ namespace Crate.Client
 
 		public void Close ()
 		{
-			this.state = ConnectionState.Closed;
+			State = ConnectionState.Closed;
 		}
 
 		public IDbCommand CreateCommand ()
@@ -126,25 +123,18 @@ namespace Crate.Client
 
 		public void Open ()
 		{
-			this.state = ConnectionState.Connecting;
+			State = ConnectionState.Connecting;
 			using (var cmd = CreateCommand()) {
 				cmd.CommandText = "select id from sys.cluster";
 				var reader = cmd.ExecuteReader();
 				reader.Read();
 			}
-			this.state = ConnectionState.Open;
+			State = ConnectionState.Open;
 		}
 
-		public string ConnectionString {
-			get {
-				return connectionString;
-			}
-			set {
-				connectionString = value;
-			}
-		}
+		public string ConnectionString { get; set; }
 
-		public int ConnectionTimeout {
+	    public int ConnectionTimeout {
 			get {
 				throw new NotImplementedException ();
 			}
@@ -156,20 +146,16 @@ namespace Crate.Client
 			}
 		}
 
-		public ConnectionState State {
-			get {
-				return state;
-			}
-		}
+		public ConnectionState State { get; private set; }
 
-		#endregion
+	    #endregion
 
 		#region IDisposable implementation
 
 		public void Dispose ()
 		{
-			if (state != ConnectionState.Closed) {
-				state = ConnectionState.Closed;
+			if (State != ConnectionState.Closed) {
+				State = ConnectionState.Closed;
 			}
 		}
 

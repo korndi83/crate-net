@@ -1,35 +1,36 @@
-using NUnit.Framework;
 using System;
+using NUnit.Framework;
 
-using Crate.Client;
-
-namespace Crate.Client
+namespace Crate.Client.Tests
 {
-	[TestFixture ()]
+	[TestFixture]
 	public class Test
 	{
-		[Test ()]
-		public void testDefaultConnection ()
+		[Test]
+		public void TestDefaultConnection ()
 		{
 			var server = new CrateServer();
+
 			Assert.AreEqual("http", server.Scheme);
 			Assert.AreEqual("localhost", server.Hostname);
 			Assert.AreEqual(4200, server.Port);
 		}
 
-		[Test ()]
-		public void testServerWithoutScheme ()
+		[Test]
+		public void TestServerWithoutScheme ()
 		{
 			var server = new CrateServer("localhost:4200");
+
 			Assert.AreEqual("http", server.Scheme);
 			Assert.AreEqual("localhost", server.Hostname);
 			Assert.AreEqual(4200, server.Port);
 		}
 
-		[Test ()]
-		public void testServerWithoutPort ()
+		[Test]
+		public void TestServerWithoutPort ()
 		{
 			var server = new CrateServer("localhost");
+
 			Assert.AreEqual("http", server.Scheme);
 			Assert.AreEqual("localhost", server.Hostname);
 			Assert.AreEqual(4200, server.Port);
@@ -37,15 +38,18 @@ namespace Crate.Client
 
 
 
-		[Test ()]
-		public void testGetDateTime()
+		[Test]
+		public void TestGetDateTime()
 		{
-			var reader = new CrateDataReader(new SqlResponse() { 
-				rows = new object[][] { new object[] { 1388534400000 } },
-				cols = new string[] { "dt" }
+			var reader = new CrateDataReader(new SqlResponse
+			{ 
+				Rows = new[] { new object[] { 1388534400000 } },
+				Cols = new[] { "dt" }
 			});
+
 			reader.Read();
 			var dt = new DateTime(2014, 01, 01);
+
 			Assert.AreEqual(dt, reader.GetDateTime(0));
 		}
 	}

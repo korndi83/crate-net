@@ -1,27 +1,24 @@
 using System;
 using System.Data;
-using System.Xml;
-using System.Collections.Generic;
 
 namespace Crate.Client
 {
 	public class CrateDataReader : IDataReader
 	{
-		private SqlResponse sqlResponse;
-		private int currentRow = -1;
-		private bool closed = false;
-		private readonly DateTime UNIX_DT = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+		private readonly SqlResponse _sqlResponse;
+		private int _currentRow = -1;
+	    private readonly DateTime _unixDt = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
 		public CrateDataReader (SqlResponse sqlResponse)
 		{
-			this.sqlResponse = sqlResponse;
+			_sqlResponse = sqlResponse;
 		}
 
 		#region IDataReader implementation
 
 		public void Close ()
 		{
-			closed = true;
+			IsClosed = true;
 		}
 
 		public DataTable GetSchemaTable ()
@@ -31,12 +28,12 @@ namespace Crate.Client
 
 		public bool NextResult ()
 		{
-			return sqlResponse.rows.Length > currentRow;
+			return _sqlResponse.Rows.Length > _currentRow;
 		}
 
 		public bool Read ()
 		{
-			currentRow++;
+			_currentRow++;
 			return NextResult();
 		}
 
@@ -46,30 +43,22 @@ namespace Crate.Client
 			}
 		}
 
-		public bool IsClosed {
-			get {
-				return closed;
-			}
-		}
+		public bool IsClosed { get; private set; }
 
-		public int RecordsAffected {
-			get {
-				return sqlResponse.rowcount;
-			}
-		}
+	    public int RecordsAffected => _sqlResponse.Rowcount;
 
-		#endregion
+	    #endregion
 
 		#region IDataRecord implementation
 
 		public bool GetBoolean (int i)
 		{
-			return (bool)sqlResponse.rows[currentRow][i];
+			return (bool)_sqlResponse.Rows[_currentRow][i];
 		}
 
 		public byte GetByte (int i)
 		{
-			return (byte)sqlResponse.rows[currentRow][i];
+			return (byte)_sqlResponse.Rows[_currentRow][i];
 		}
 
 		public long GetBytes (int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
@@ -79,7 +68,7 @@ namespace Crate.Client
 
 		public char GetChar (int i)
 		{
-			return (char)sqlResponse.rows[currentRow][i];
+			return (char)_sqlResponse.Rows[_currentRow][i];
 		}
 
 		public long GetChars (int i, long fieldoffset, char[] buffer, int bufferoffset, int length)
@@ -99,17 +88,17 @@ namespace Crate.Client
 
 		public DateTime GetDateTime (int i)
 		{
-			return UNIX_DT.AddMilliseconds(GetInt64(i));
+			return _unixDt.AddMilliseconds(GetInt64(i));
 		}
 
 		public decimal GetDecimal (int i)
 		{
-			return (decimal)sqlResponse.rows[currentRow][i];
+			return (decimal)_sqlResponse.Rows[_currentRow][i];
 		}
 
 		public double GetDouble (int i)
 		{
-			return (double)sqlResponse.rows[currentRow][i];
+			return (double)_sqlResponse.Rows[_currentRow][i];
 		}
 
 		public Type GetFieldType (int i)
@@ -119,83 +108,71 @@ namespace Crate.Client
 
 		public float GetFloat (int i)
 		{
-			return (float)sqlResponse.rows[currentRow][i];
+			return (float)_sqlResponse.Rows[_currentRow][i];
 		}
 
 		public Guid GetGuid (int i)
 		{
-			return Guid.Parse((string)sqlResponse.rows[currentRow][i]);
+			return Guid.Parse((string)_sqlResponse.Rows[_currentRow][i]);
 		}
 
 		public short GetInt16 (int i)
 		{
-			return (short)sqlResponse.rows[currentRow][i];
+			return (short)_sqlResponse.Rows[_currentRow][i];
 		}
 
 		public int GetInt32 (int i)
 		{
-			return (int)sqlResponse.rows[currentRow][i];
+			return (int)_sqlResponse.Rows[_currentRow][i];
 		}
 
 		public long GetInt64 (int i)
 		{
-			return (long)sqlResponse.rows[currentRow][i];
+			return (long)_sqlResponse.Rows[_currentRow][i];
 		}
 
 		public string GetName (int i)
 		{
-			return sqlResponse.cols[i];
+			return _sqlResponse.Cols[i];
 		}
 
 		public int GetOrdinal (string name)
 		{
-			return Array.BinarySearch(sqlResponse.cols, name);
+			return Array.BinarySearch(_sqlResponse.Cols, name);
 		}
 
 		public string GetString (int i)
 		{
-			return (string)sqlResponse.rows[currentRow][i];
+			return (string)_sqlResponse.Rows[_currentRow][i];
 		}
 
 		public object GetValue (int i)
 		{
-			return sqlResponse.rows[currentRow][i];
+			return _sqlResponse.Rows[_currentRow][i];
 		}
 
 		public int GetValues (object[] values)
 		{
-			int i = 0;
-			int j = 0;
-			for (; i < values.Length && j < sqlResponse.cols.Length; i++, j++) {
-				values[i] = sqlResponse.rows[currentRow][j];
+			var i = 0;
+			var j = 0;
+			for (; i < values.Length && j < _sqlResponse.Cols.Length; i++, j++) {
+				values[i] = _sqlResponse.Rows[_currentRow][j];
 			}
 			return i;
 		}
 
 		public bool IsDBNull (int i)
 		{
-			return sqlResponse.rows[currentRow][i] == null;
+			return _sqlResponse.Rows[_currentRow][i] == null;
 		}
 
-		public int FieldCount {
-			get {
-				return sqlResponse.cols.Length;
-			}
-		}
+		public int FieldCount => _sqlResponse.Cols.Length;
 
-		public object this [string name] {
-			get {
-				return sqlResponse.rows[currentRow][GetOrdinal(name)];
-			}
-		}
+	    public object this [string name] => _sqlResponse.Rows[_currentRow][GetOrdinal(name)];
 
-		public object this [int index] {
-			get {
-				return sqlResponse.rows[currentRow][index];
-			}
-		}
+	    public object this [int index] => _sqlResponse.Rows[_currentRow][index];
 
-		#endregion
+	    #endregion
 
 		#region IDisposable implementation
 
