@@ -5,59 +5,16 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Crate.Client.Constants;
+using Crate.Client.Models;
 
 namespace Crate.Client
 {
-    [DebuggerDisplay("<CrateServer {Hostname}:{Port}>")]
-    public class CrateServer
-    {
-        private readonly Regex _serverRex = new Regex(@"^(https?)?(://)?([^:]*):?(\d*)$");
-
-        public string Scheme { get; set; }
-        public string Hostname { get; set; }
-        public int Port { get; set; }
-
-        public CrateServer()
-        {
-            Hostname = CrateConstants.DefaultServer;
-            Scheme = CrateConstants.DefaultTransport;
-            Port = CrateConstants.DefaultPort;
-        }
-
-        public CrateServer(KeyValuePair<string, int> serverAndPort)
-            : this()
-        {
-            Hostname = serverAndPort.Key;
-            Port = serverAndPort.Value;
-        }
-
-        public CrateServer(string server)
-            : this()
-        {
-            if (server == null)
-                return;
-
-            var m = _serverRex.Match(server);
-
-            if (!m.Success)
-                return;
-
-            Scheme = string.IsNullOrEmpty(m.Groups[1].Value) ? CrateConstants.DefaultTransport : m.Groups[1].Value;
-            Hostname = string.IsNullOrEmpty(m.Groups[3].Value) ? CrateConstants.DefaultServer : m.Groups[3].Value;
-            Port = string.IsNullOrEmpty(m.Groups[4].Value) ? CrateConstants.DefaultPort : int.Parse(m.Groups[4].Value);
-        }
-
-        public string SqlUri()
-        {
-            return string.Format("{0}://{1}:{2}/_sql", Scheme, Hostname, Port);
-        }
-    }
-
     public class CrateConnection : IDbConnection
     {
         private readonly IList<CrateServer> _allServers;
         private int _currentServer = 0;
-        private readonly object _lockObj = new object();
+        private readonly object _lockObj1 = new object();
+        private readonly object _lockObj2 = new object();
 
         private readonly CrateConnectionParameters _parameters;
 
@@ -85,7 +42,7 @@ namespace Crate.Client
 
         public CrateServer NextServer()
         {
-            lock (_lockObj)
+            lock (_lockObj1)
             {
                 var server = ActiveServers[_currentServer];
                 _currentServer++;
@@ -99,7 +56,7 @@ namespace Crate.Client
 
         public void MarkAsFailed(CrateServer server)
         {
-            lock (_lockObj)
+            lock (_lockObj1)
             {
                 if (ActiveServers.Count == 1)
                 {
@@ -113,7 +70,7 @@ namespace Crate.Client
 
         private void AddServer(CrateServer server)
         {
-            lock (_lockObj)
+            lock (_lockObj1)
             {
                 if (!ActiveServers.Contains(server))
                 {
@@ -141,7 +98,7 @@ namespace Crate.Client
 
         public void Close()
         {
-            lock (_lockObj)
+            lock (_lockObj2)
             {
                 State = ConnectionState.Closed;
             }
@@ -154,7 +111,7 @@ namespace Crate.Client
 
         public void Open()
         {
-            lock (_lockObj)
+            lock (_lockObj2)
             {
                 State = ConnectionState.Connecting;
 

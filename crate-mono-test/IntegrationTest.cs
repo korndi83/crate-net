@@ -1,35 +1,36 @@
 using Dapper;
 using System.Linq;
-using NUnit.Framework;
 using Crate.Testing;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Crate.Client
 {
+    [TestClass]
 	public class IntegrationTest
 	{
-        private static CrateCluster _cluster = null;
+        private CrateCluster _cluster = null;
 
-        [OneTimeSetUp]
-        public static void SetUpCrateCluster()
-        {
-            if (_cluster != null)
-                return;
+        //[TestInitialize]
+        //public void SetUpCrateCluster()
+        //{
+        //    if (_cluster != null)
+        //        return;
 
-            _cluster = new CrateCluster("crate-testing", "0.52.4");
-            _cluster.Start();
-        }
+        //    _cluster = new CrateCluster("crate-testing", "0.55.4");
+        //    _cluster.Start();
+        //}
 
-        [OneTimeTearDown]
-        public static void TearDownCrateCluster()
-        {
-            if (_cluster == null)
-                return;
+        //[TestCleanup]
+        //public void TearDownCrateCluster()
+        //{
+        //    if (_cluster == null)
+        //        return;
 
-            _cluster.Stop();
-            _cluster = null;
-        }
+        //    _cluster.Stop();
+        //    _cluster = null;
+        //}
 
-		[Test]
+		[TestMethod]
 		public void TestSelect ()
 		{
 			using (var conn = new CrateConnection()) {
@@ -44,10 +45,10 @@ namespace Crate.Client
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestSelectServerRoundrobin()
 		{
-			using (var conn = new CrateConnection("localhost:9999, localhost:4200")) {
+			using (var conn = new CrateConnection("Server=localhost,localhost;Port=9999,4200")) {
 				conn.Open();
 
 				for (var i = 0; i < 10; i++) {
@@ -57,7 +58,7 @@ namespace Crate.Client
 			}
 		}
 
-		[Test]
+		[TestMethod]
 		public void TestWithDapper()
 		{
 			using (var conn = new CrateConnection()) {
