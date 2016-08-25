@@ -1,5 +1,6 @@
 using System;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace Crate.Client.Tests
 {
@@ -16,27 +17,15 @@ namespace Crate.Client.Tests
 			Assert.AreEqual(4200, server.Port);
 		}
 
-		[Test]
-		public void TestServerWithoutScheme ()
-		{
-			var server = new CrateServer("localhost:4200");
+        [Test]
+        public void TestServerWithKvp()
+        {
+            var server = new CrateServer(new KeyValuePair<string, int>("localhost", 4200));
 
-			Assert.AreEqual("http", server.Scheme);
-			Assert.AreEqual("localhost", server.Hostname);
-			Assert.AreEqual(4200, server.Port);
-		}
-
-		[Test]
-		public void TestServerWithoutPort ()
-		{
-			var server = new CrateServer("localhost");
-
-			Assert.AreEqual("http", server.Scheme);
-			Assert.AreEqual("localhost", server.Hostname);
-			Assert.AreEqual(4200, server.Port);
-		}
-
-
+            Assert.AreEqual("http", server.Scheme);
+            Assert.AreEqual("localhost", server.Hostname);
+            Assert.AreEqual(4200, server.Port);
+        }
 
 		[Test]
 		public void TestGetDateTime()
