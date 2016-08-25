@@ -4,162 +4,201 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Crate.Client.Constants;
 
 namespace Crate.Client
 {
-	[DebuggerDisplay("<CrateServer {Hostname}:{Port}>")]
-	public class CrateServer
-	{
-		private readonly Regex _serverRex = new Regex(@"^(https?)?(://)?([^:]*):?(\d*)$");
+    [DebuggerDisplay("<CrateServer {Hostname}:{Port}>")]
+    public class CrateServer
+    {
+        private readonly Regex _serverRex = new Regex(@"^(https?)?(://)?([^:]*):?(\d*)$");
 
-		public string Scheme { get; set; }
-		public string Hostname { get; set; }
-		public int Port { get; set; }
+        public string Scheme { get; set; }
+        public string Hostname { get; set; }
+        public int Port { get; set; }
 
-		public CrateServer () : this(null) {}
+        public CrateServer()
+        {
+            Hostname = CrateConstants.DefaultServer;
+            Scheme = CrateConstants.DefaultTransport;
+            Port = CrateConstants.DefaultPort;
+        }
 
-		public CrateServer(string server)
-		{
-            Hostname = "localhost";
-            Scheme = "http";
-            Port = 4200;
-			if (server == null) {
-				return;
-			}
+        public CrateServer(KeyValuePair<string, int> serverAndPort)
+            : this()
+        {
+            Hostname = serverAndPort.Key;
+            Port = serverAndPort.Value;
+        }
 
-			var m = _serverRex.Match(server);
-
-		    if (!m.Success)
+        public CrateServer(string server)
+            : this()
+        {
+            if (server == null)
                 return;
 
-		    Scheme = string.IsNullOrEmpty(m.Groups[1].Value) ? "http" : m.Groups[1].Value;
-		    Hostname = string.IsNullOrEmpty(m.Groups[3].Value) ? "localhost" : m.Groups[3].Value;
-		    Port = int.Parse(string.IsNullOrEmpty(m.Groups[4].Value) ? "4200" : m.Groups[4].Value);
-		}
+            var m = _serverRex.Match(server);
 
-		public string SqlUri() {
-			return string.Format("{0}://{1}:{2}/_sql", Scheme, Hostname, Port);
-		}
-	}
+            if (!m.Success)
+                return;
 
-	public class CrateConnection : IDbConnection
-	{
-	    private readonly List<CrateServer> _allServers;
-		private int _currentServer = 0;
-		private readonly object _lockObj = new object();
+            Scheme = string.IsNullOrEmpty(m.Groups[1].Value) ? CrateConstants.DefaultTransport : m.Groups[1].Value;
+            Hostname = string.IsNullOrEmpty(m.Groups[3].Value) ? CrateConstants.DefaultServer : m.Groups[3].Value;
+            Port = string.IsNullOrEmpty(m.Groups[4].Value) ? CrateConstants.DefaultPort : int.Parse(m.Groups[4].Value);
+        }
 
-		public List<CrateServer> ActiveServers { get; private set; }
+        public string SqlUri()
+        {
+            return string.Format("{0}://{1}:{2}/_sql", Scheme, Hostname, Port);
+        }
+    }
 
-		public CrateConnection () : this("localhost:4200") {}
+    public class CrateConnection : IDbConnection
+    {
+        private readonly IList<CrateServer> _allServers;
+        private int _currentServer = 0;
+        private readonly object _lockObj = new object();
 
-		public CrateConnection (string connectionString)
-		{
-			_allServers = new List<CrateServer>();
-			foreach (var server in connectionString.Split (',')) {
-				_allServers.Add(new CrateServer(server.Trim()));
-			}
-			ActiveServers = _allServers;
-			ConnectionString = connectionString;
-			State = ConnectionState.Closed;
-		}
+        private readonly CrateConnectionParameters _parameters;
 
-		public CrateServer NextServer() {
-			lock (_lockObj) {
-				var server = ActiveServers[_currentServer];
-				_currentServer++;
-				if (_currentServer >= ActiveServers.Count) {
-					_currentServer = 0;
-				}
-				return server;
-			}
-		}
+        public IList<CrateServer> ActiveServers { get; private set; }
 
-		public void MarkAsFailed (CrateServer server)
-		{
-			lock (_lockObj) {
-				if (ActiveServers.Count == 1) {
-					ActiveServers = _allServers;
-				}
-				ActiveServers.Remove(server);
-				Task.Delay(TimeSpan.FromMinutes(3)).ContinueWith(x => AddServer(server));
-				_currentServer = 0;
-			}
-		}
+        public CrateConnection()
+            : this("Server=localhost;Port=4200") { }
 
-		private void AddServer (CrateServer server) {
-			lock (_lockObj) {
-				if (!ActiveServers.Contains(server)) {
-					ActiveServers.Add(server);
-				}
-			}
-		}
+        public CrateConnection(string connectionString)
+        {
+            _parameters = CrateConnectionParameters.FromConnectionString(connectionString);
 
-		#region IDbConnection implementation
+            _allServers = new List<CrateServer>();
 
-		public IDbTransaction BeginTransaction ()
-		{
-			throw new NotImplementedException ();
-		}
+            foreach (var node in _parameters.Nodes)
+            {
+                _allServers.Add(new CrateServer(node));
+            }
 
-		public IDbTransaction BeginTransaction (IsolationLevel il)
-		{
-			throw new NotImplementedException ();
-		}
+            ActiveServers = _allServers;
 
-		public void ChangeDatabase (string databaseName)
-		{
-			throw new NotImplementedException ();
-		}
+            ConnectionString = connectionString;
+            State = ConnectionState.Closed;
+        }
 
-		public void Close ()
-		{
-			State = ConnectionState.Closed;
-		}
+        public CrateServer NextServer()
+        {
+            lock (_lockObj)
+            {
+                var server = ActiveServers[_currentServer];
+                _currentServer++;
+                if (_currentServer >= ActiveServers.Count)
+                {
+                    _currentServer = 0;
+                }
+                return server;
+            }
+        }
 
-		public IDbCommand CreateCommand ()
-		{
-			return new CrateCommand(null, this);
-		}
+        public void MarkAsFailed(CrateServer server)
+        {
+            lock (_lockObj)
+            {
+                if (ActiveServers.Count == 1)
+                {
+                    ActiveServers = _allServers;
+                }
+                ActiveServers.Remove(server);
+                Task.Delay(TimeSpan.FromMinutes(3)).ContinueWith(x => AddServer(server));
+                _currentServer = 0;
+            }
+        }
 
-		public void Open ()
-		{
-			State = ConnectionState.Connecting;
-			using (var cmd = CreateCommand()) {
-				cmd.CommandText = "select id from sys.cluster";
-				var reader = cmd.ExecuteReader();
-				reader.Read();
-			}
-			State = ConnectionState.Open;
-		}
+        private void AddServer(CrateServer server)
+        {
+            lock (_lockObj)
+            {
+                if (!ActiveServers.Contains(server))
+                {
+                    ActiveServers.Add(server);
+                }
+            }
+        }
 
-		public string ConnectionString { get; set; }
+        #region IDbConnection implementation
 
-	    public int ConnectionTimeout {
-			get {
-				throw new NotImplementedException ();
-			}
-		}
+        public IDbTransaction BeginTransaction()
+        {
+            throw new NotImplementedException();
+        }
 
-		public string Database {
-			get {
-				throw new NotImplementedException ();
-			}
-		}
+        public IDbTransaction BeginTransaction(IsolationLevel il)
+        {
+            throw new NotImplementedException();
+        }
 
-		public ConnectionState State { get; private set; }
+        public void ChangeDatabase(string databaseName)
+        {
+            throw new NotImplementedException();
+        }
 
-	    #endregion
+        public void Close()
+        {
+            lock (_lockObj)
+            {
+                State = ConnectionState.Closed;
+            }
+        }
 
-		#region IDisposable implementation
+        public IDbCommand CreateCommand()
+        {
+            return new CrateCommand(null, this);
+        }
 
-		public void Dispose ()
-		{
-			if (State != ConnectionState.Closed) {
-				State = ConnectionState.Closed;
-			}
-		}
+        public void Open()
+        {
+            lock (_lockObj)
+            {
+                State = ConnectionState.Connecting;
 
-		#endregion
-	}
+                using (var cmd = CreateCommand())
+                {
+                    cmd.CommandText = "select id from sys.cluster";
+                    var reader = cmd.ExecuteReader();
+                    reader.Read();
+                }
+
+                State = ConnectionState.Open;
+            }
+        }
+
+        public string ConnectionString { get; set; }
+
+        public int ConnectionTimeout
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public string Database
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public ConnectionState State { get; private set; }
+
+        #endregion
+
+        #region IDisposable implementation
+
+        public void Dispose()
+        {
+            Close();
+        }
+
+        #endregion
+    }
 }
 

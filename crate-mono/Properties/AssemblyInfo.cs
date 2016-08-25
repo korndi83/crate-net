@@ -6,7 +6,7 @@ using System.Reflection;
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("")]
-[assembly: AssemblyProduct ("")]
+[assembly: AssemblyProduct ("Crate.Client")]
 [assembly: AssemblyCopyright ("Mathias Fussenegger, Sherzod Mutalov")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]

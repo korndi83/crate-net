@@ -50,7 +50,7 @@ namespace Crate.Client
 
 		public async Task<int> ExecuteNonQueryAsync ()
 		{
-			return (await Execute()).Rowcount;
+			return (await ExecuteAsync()).Rowcount;
 		}
 
 		public IDataReader ExecuteReader()
@@ -60,7 +60,7 @@ namespace Crate.Client
 			return task.Result;
 		}
 
-		protected async Task<SqlResponse> Execute(int currentRetry = 0)
+		protected async Task<SqlResponse> ExecuteAsync(int currentRetry = 0)
 		{
             var server = _connection.NextServer();
             try {
@@ -72,13 +72,13 @@ namespace Crate.Client
                 if (currentRetry > 3) {
                     throw;
                 }
-                return await Execute(currentRetry++);
+                return await ExecuteAsync(currentRetry++);
             }
         }
 
 		public async Task<IDataReader> ExecuteReaderAsync ()
 		{
-			return new CrateDataReader(await Execute());
+			return new CrateDataReader(await ExecuteAsync());
 		}
 
 		public IDataReader ExecuteReader (CommandBehavior behavior)
