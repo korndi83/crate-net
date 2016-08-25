@@ -5,7 +5,7 @@
     /// </summary>
     internal static class CrateConnectionParameterNames
     {
-        public const string Server = "Server";
-        public const string Port = "Port";
+        public const string Server = "SERVER";
+        public const string Port = "PORT";
     }
 }
