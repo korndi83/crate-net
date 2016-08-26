@@ -66,9 +66,12 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="FSharp.Core" />
-    <ProjectReference Include="..\crate-mono\Crate.Client.csproj">
-      <Project>{E0A6934E-93EF-485E-861F-11440F011D3F}</Project>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Crate.Net\Crate.Client.csproj">
       <Name>Crate.Client</Name>
+      <Project>{e0a6934e-93ef-485e-861f-11440f011d3f}</Project>
+      <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
 </Project>

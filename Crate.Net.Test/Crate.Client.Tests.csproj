@@ -46,12 +46,12 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\CrateTesting\Crate.Testing.fsproj">
+    <ProjectReference Include="..\Crate.Net.Testing\Crate.Testing.fsproj">
       <Project>{56ED513A-3CE5-4A1B-AAA9-71F6AB11051A}</Project>
       <Name>Crate.Testing</Name>
     </ProjectReference>
-    <ProjectReference Include="..\crate-mono\Crate.Client.csproj">
-      <Project>{E0A6934E-93EF-485E-861F-11440F011D3F}</Project>
+    <ProjectReference Include="..\Crate.Net\Crate.Client.csproj">
+      <Project>{e0a6934e-93ef-485e-861f-11440f011d3f}</Project>
       <Name>Crate.Client</Name>
     </ProjectReference>
   </ItemGroup>
