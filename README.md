@@ -5,15 +5,13 @@ Crate.Net.Client
 
 Crate&#46;Net is a Mono/.NET client driver implementing the ADO&#46;NET interface for [Crate](http://crate.io)
 
-```cs
-using (var conn = new CrateConnection("Server=localhost;Port=4200"))
+```vb
+using (var conn = new CrateConnection("Server=localhost;Port=4200")) 
 {
     conn.Open();
-
     using (var cmd = conn.CreateCommand())
     {
         cmd.CommandText = "select name from sys.cluster";
-
         using (var reader = cmd.ExecuteReader())
         {
             reader.Read();
