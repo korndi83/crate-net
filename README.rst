@@ -12,16 +12,24 @@ for `Crate <https://crate.io>`_
 
 ::
 
-    using Crate.Net.Client;
+```
+    using (var conn = new CrateConnection("Server=localhost;Port=4200"))
+	{
+		conn.Open();
 
-    using (var conn = new CrateConnection()) {
-        conn.Open();
-        using (var cmd = new CrateCommand("select name from sys.cluster", conn)) {
-            var reader = cmd.ExecuteReader();
-            reader.Read();
-            string clusterName = reader.GetString(0);
-        }
-    }
+		using (var cmd = conn.CreateCommand())
+		{
+			cmd.CommandText = "select name from sys.cluster";
+
+			using (var reader = cmd.ExecuteReader())
+			{
+				reader.Read();
+				var clusterName = reader.GetString(0);
+				Assert.AreEqual(clusterName, "crate");
+			}
+		}
+	}
+```
 
 Things missing
 ==============

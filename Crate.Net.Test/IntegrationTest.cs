@@ -3,48 +3,54 @@ using System.Linq;
 using Crate.Net.Testing;
 using NUnit.Framework;
 using System;
+using System.Threading;
 
 namespace Crate.Client
 {
     [TestFixture]
-	public class IntegrationTest
-	{
-        private CrateCluster _cluster = null;
+    public class IntegrationTest
+    {
+        private static CrateCluster _cluster = null;
 
         [OneTimeSetUp]
-        public void SetUpCrateCluster()
+        public static void SetUpCrateCluster()
         {
             if (_cluster != null)
                 return;
 
             _cluster = new CrateCluster("crate-testing", "0.55.4");
             _cluster.Start();
+
+            // sleep for 10 seconds, wait until cluster starts
+            Thread.Sleep(10000);
         }
 
         [OneTimeTearDown]
-        public void TearDownCrateCluster()
+        public static void TearDownCrateCluster()
         {
-            if (_cluster == null)
-                return;
-
-            _cluster.Stop();
-            _cluster = null;
+            _cluster?.Stop();
         }
 
         [Test]
-		public void TestSelect ()
-		{
-			using (var conn = new CrateConnection()) {
-				conn.Open();
+        public void TestSelect()
+        {
+            using (var conn = new CrateConnection())
+            {
+                conn.Open();
 
-				using (var cmd = new CrateCommand("select name from sys.cluster", conn)) {
-					var reader = cmd.ExecuteReader();
-					reader.Read();
-					var clusterName = reader.GetString(0);
-					Assert.AreEqual(clusterName, "crate");
-				}
-			}
-		}
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "select name from sys.cluster";
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        reader.Read();
+                        var clusterName = reader.GetString(0);
+                        Assert.AreEqual(clusterName, "crate");
+                    }
+                }
+            }
+        }
 
         [Test]
         public void TestSelectThrowsCrateException()
@@ -55,8 +61,10 @@ namespace Crate.Client
                 {
                     conn.Open();
 
-                    using (var cmd = new CrateCommand("invalid sql statement", conn))
+                    using (var cmd = conn.CreateCommand())
                     {
+                        cmd.CommandText = "invalid sql statement";
+
                         using (var reader = cmd.ExecuteReader())
                             reader.Read();
                     }
@@ -73,43 +81,46 @@ namespace Crate.Client
         }
 
         [Test]
-		public void TestSelectServerRoundrobin()
-		{
-			using (var conn = new CrateConnection("Server=localhost,localhost;Port=9999,4200")) {
-				conn.Open();
+        public void TestSelectServerRoundrobin()
+        {
+            using (var conn = new CrateConnection("Server=localhost,localhost;Port=9999,4200"))
+            {
+                conn.Open();
 
-				for (var i = 0; i < 10; i++) {
-					var clusterName = conn.Query<string>("select name from sys.cluster").First();
-					Assert.AreEqual("crate", clusterName);
-				}
-			}
-		}
+                for (var i = 0; i < 10; i++)
+                {
+                    var clusterName = conn.Query<string>("select name from sys.cluster").First();
+                    Assert.AreEqual("crate", clusterName);
+                }
+            }
+        }
 
-		[Test]
-		public void TestWithDapper()
-		{
-			using (var conn = new CrateConnection()) {
-				conn.Open();
-				var clusterName = conn.Query<string>("select name from sys.cluster").First();
-				Assert.AreEqual(clusterName, "crate");
+        [Test]
+        public void TestWithDapper()
+        {
+            using (var conn = new CrateConnection())
+            {
+                conn.Open();
+                var clusterName = conn.Query<string>("select name from sys.cluster").First();
+                Assert.AreEqual(clusterName, "crate");
 
-				clusterName = conn.Query<string>(
-					"select name from sys.cluster where name = ?", new { Name = "crate" }).First();
-				Assert.AreEqual(clusterName, "crate");
+                clusterName = conn.Query<string>(
+                    "select name from sys.cluster where name = ?", new { Name = "crate" }).First();
+                Assert.AreEqual(clusterName, "crate");
 
-				conn.Execute(
-					"create table foo (id int primary key, name string) with (number_of_replicas='0-1')");
-				Assert.AreEqual(1,
-					conn.Execute("insert into foo (id, name) values (?, ?)", new { id = 1, name = "foo"}));
+                conn.Execute(
+                    "create table foo (id int primary key, name string) with (number_of_replicas='0-1')");
+                Assert.AreEqual(1,
+                    conn.Execute("insert into foo (id, name) values (?, ?)", new { id = 1, name = "foo" }));
 
-				var rowsAffected = conn.Execute(
-					"insert into foo (id, name) values (?, ?), (?, ?)",
-					new { id1 = 2, name1 = "zwei", id2 = 3, name2 = "drei"}
-				);
-				Assert.AreEqual(2, rowsAffected);
-				conn.Execute("drop table foo");
-			}
-		}
+                var rowsAffected = conn.Execute(
+                    "insert into foo (id, name) values (?, ?), (?, ?)",
+                    new { id1 = 2, name1 = "zwei", id2 = 3, name2 = "drei" }
+                );
+                Assert.AreEqual(2, rowsAffected);
+                conn.Execute("drop table foo");
+            }
+        }
 
         [Test]
         public void TestSchemaTable()
@@ -136,8 +147,9 @@ namespace Crate.Client
 	                    , {} AS ""object""
                     FROM sys.cluster";
 
-                using (var cmd = new CrateCommand(query, conn))
+                using (var cmd = conn.CreateCommand())
                 {
+                    cmd.CommandText = query;
                     var reader = cmd.ExecuteReader();
 
                     var table = reader.GetSchemaTable();
@@ -147,5 +159,5 @@ namespace Crate.Client
                 }
             }
         }
-	}
+    }
 }
