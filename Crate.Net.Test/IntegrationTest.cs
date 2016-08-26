@@ -1,37 +1,37 @@
 using Dapper;
 using System.Linq;
-using Crate.Testing;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Crate.Net.Testing;
+using NUnit.Framework;
 using System;
 
 namespace Crate.Client
 {
-    [TestClass]
+    [TestFixture]
 	public class IntegrationTest
 	{
-        //private CrateCluster _cluster = null;
+        private CrateCluster _cluster = null;
 
-        //[TestInitialize]
-        //public void SetUpCrateCluster()
-        //{
-        //    if (_cluster != null)
-        //        return;
+        [OneTimeSetUp]
+        public void SetUpCrateCluster()
+        {
+            if (_cluster != null)
+                return;
 
-        //    _cluster = new CrateCluster("crate-testing", "0.55.4");
-        //    _cluster.Start();
-        //}
+            _cluster = new CrateCluster("crate-testing", "0.55.4");
+            _cluster.Start();
+        }
 
-        //[TestCleanup]
-        //public void TearDownCrateCluster()
-        //{
-        //    if (_cluster == null)
-        //        return;
+        [OneTimeTearDown]
+        public void TearDownCrateCluster()
+        {
+            if (_cluster == null)
+                return;
 
-        //    _cluster.Stop();
-        //    _cluster = null;
-        //}
+            _cluster.Stop();
+            _cluster = null;
+        }
 
-		[TestMethod]
+        [Test]
 		public void TestSelect ()
 		{
 			using (var conn = new CrateConnection()) {
@@ -46,7 +46,7 @@ namespace Crate.Client
 			}
 		}
 
-        [TestMethod]
+        [Test]
         public void TestSelectThrowsCrateException()
         {
             try
@@ -72,7 +72,7 @@ namespace Crate.Client
             }
         }
 
-        [TestMethod]
+        [Test]
 		public void TestSelectServerRoundrobin()
 		{
 			using (var conn = new CrateConnection("Server=localhost,localhost;Port=9999,4200")) {
@@ -85,7 +85,7 @@ namespace Crate.Client
 			}
 		}
 
-		[TestMethod]
+		[Test]
 		public void TestWithDapper()
 		{
 			using (var conn = new CrateConnection()) {
@@ -111,7 +111,7 @@ namespace Crate.Client
 			}
 		}
 
-        [TestMethod]
+        [Test]
         public void TestSchemaTable()
         {
             using (var conn = new CrateConnection())

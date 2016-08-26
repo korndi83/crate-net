@@ -54,9 +54,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Crate.Net\Crate.Client.csproj">
+    <ProjectReference Include="..\Crate.Net\Crate.Net.Client.csproj">
       <Project>{e0a6934e-93ef-485e-861f-11440f011d3f}</Project>
-      <Name>Crate.Client</Name>
+      <Name>Crate.Net.Client</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,4 +1,4 @@
-namespace Crate.Testing
+namespace Crate.Net.Testing
 
 open System.Threading
 open System

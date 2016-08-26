@@ -2,11 +2,11 @@ using System.Reflection;
 
 // Information about this assembly is defined by the following attributes.
 // Change them to the values specific to your project.
-[assembly: AssemblyTitle ("crate-net")]
+[assembly: AssemblyTitle("Crate.Net.Client")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("")]
-[assembly: AssemblyProduct ("Crate.Client")]
+[assembly: AssemblyProduct("Crate.Net.Client")]
 [assembly: AssemblyCopyright ("Mathias Fussenegger, Sherzod Mutalov")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]

@@ -1,14 +1,14 @@
 using Crate.Client.Models;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
 namespace Crate.Client.Tests
 {
-	[TestClass]
+	[TestFixture]
 	public class Test
 	{
-		[TestMethod]
+		[Test]
 		public void TestDefaultConnection ()
 		{
 			var server = new CrateServer();
@@ -18,7 +18,7 @@ namespace Crate.Client.Tests
 			Assert.AreEqual(4200, server.Port);
 		}
 
-        [TestMethod]
+        [Test]
         public void TestServerWithKvp()
         {
             var server = new CrateServer(new KeyValuePair<string, int>("localhost", 4200));
@@ -28,7 +28,7 @@ namespace Crate.Client.Tests
             Assert.AreEqual(4200, server.Port);
         }
 
-		[TestMethod]
+		[Test]
 		public void TestGetDateTime()
 		{
 			var reader = new CrateDataReader(new SqlResponse
