@@ -7,8 +7,8 @@
     <ProjectGuid>{1EE15721-F998-4724-9084-B2A730DC8C49}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Crate.NuGet</RootNamespace>
-    <AssemblyName>Crate.NuGet</AssemblyName>
+    <RootNamespace>Crate.Net.NuGet</RootNamespace>
+    <AssemblyName>Crate.Net.NuGet</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
