@@ -12,7 +12,7 @@ for `Crate <https://crate.io>`_
 
 ::
 
-```
+
     using (var conn = new CrateConnection("Server=localhost;Port=4200"))
 	{
 		conn.Open();
@@ -29,7 +29,7 @@ for `Crate <https://crate.io>`_
 			}
 		}
 	}
-```
+
 
 Things missing
 ==============
