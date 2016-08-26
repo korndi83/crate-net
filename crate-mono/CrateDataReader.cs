@@ -45,7 +45,7 @@ namespace Crate.Client
 
 		public bool IsClosed { get; private set; }
 
-	    public int RecordsAffected => _sqlResponse.Rowcount;
+	    public int RecordsAffected => _sqlResponse.RowCount;
 
 	    #endregion
 

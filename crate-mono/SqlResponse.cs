@@ -1,14 +1,24 @@
+using Newtonsoft.Json;
 using System;
 
 namespace Crate.Client
 {
+    [Serializable]
 	public class SqlResponse
 	{
+        [JsonProperty("cols")]
 		public string[] Cols { get; set; }
-		public object[][] Rows { get; set; }
-		public int Rowcount { get; set; }
 
-		public SqlResponse ()
+        [JsonProperty("rows")]
+        public object[][] Rows { get; set; }
+
+        [JsonProperty("rowcount")]
+        public int RowCount { get; set; }
+
+        [JsonProperty("error")]
+        public SqlError Error { get; set; }
+
+        public SqlResponse ()
 		{
 		}
 	}

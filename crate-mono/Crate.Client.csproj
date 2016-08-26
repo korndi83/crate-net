@@ -42,10 +42,13 @@
     <Compile Include="Constants\CrateConnectionParameterNames.cs" />
     <Compile Include="Constants\CrateConstants.cs" />
     <Compile Include="CrateConnectionParameters.cs" />
+    <Compile Include="Extensions\CrateExt.cs" />
+    <Compile Include="Extensions\SqlResponseExt.cs" />
     <Compile Include="Models\CrateServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CrateConnection.cs" />
     <Compile Include="CrateCommand.cs" />
+    <Compile Include="SqlError.cs" />
     <Compile Include="SqlRequest.cs" />
     <Compile Include="CrateDataReader.cs" />
     <Compile Include="SqlResponse.cs" />

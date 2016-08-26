@@ -2,13 +2,14 @@ using Dapper;
 using System.Linq;
 using Crate.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace Crate.Client
 {
     [TestClass]
 	public class IntegrationTest
 	{
-        private CrateCluster _cluster = null;
+        //private CrateCluster _cluster = null;
 
         //[TestInitialize]
         //public void SetUpCrateCluster()
@@ -45,7 +46,33 @@ namespace Crate.Client
 			}
 		}
 
-		[TestMethod]
+        [TestMethod]
+        public void TestSelectThrowsCrateException()
+        {
+            try
+            {
+                using (var conn = new CrateConnection())
+                {
+                    conn.Open();
+
+                    using (var cmd = new CrateCommand("invalid sql statement", conn))
+                    {
+                        using (var reader = cmd.ExecuteReader())
+                            reader.Read();
+                    }
+                }
+            }
+            catch (CrateException)
+            {
+                // ignore
+            }
+            catch (Exception)
+            {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
 		public void TestSelectServerRoundrobin()
 		{
 			using (var conn = new CrateConnection("Server=localhost,localhost;Port=9999,4200")) {

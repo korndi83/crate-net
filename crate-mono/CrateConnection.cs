@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Crate.Client.Constants;
 using Crate.Client.Models;
+using Crate.Client.Extensions;
 
 namespace Crate.Client
 {
@@ -25,7 +26,7 @@ namespace Crate.Client
 
         public CrateConnection(string connectionString)
         {
-            _parameters = CrateConnectionParameters.FromConnectionString(connectionString);
+            _parameters = connectionString.ToConnectionParameters();
 
             _allServers = new List<CrateServer>();
 

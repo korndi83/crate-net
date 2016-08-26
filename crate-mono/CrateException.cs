@@ -9,6 +9,11 @@ namespace Crate.Client
             : base(message)
 		{
 		}
+
+        public CrateException(SqlError error)
+            : base(error.ToString())
+        {
+        }
 	}
 }
 
