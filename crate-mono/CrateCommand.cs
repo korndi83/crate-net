@@ -114,7 +114,7 @@ namespace Crate.Client
             var resp = await ExecuteAsync();
 
             if (resp.Error == null)
-                return new CrateDataReader(await ExecuteAsync());
+                return new CrateDataReader(resp);
 
             throw new CrateException(resp.Error);
         }

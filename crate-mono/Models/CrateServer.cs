@@ -50,7 +50,7 @@ namespace Crate.Client.Models
 
         public string SqlUri()
         {
-            return string.Format("{0}://{1}:{2}/_sql", Scheme, Hostname, Port);
+            return string.Format("{0}://{1}:{2}/_sql?types=true", Scheme, Hostname, Port);
         }
     }
 }

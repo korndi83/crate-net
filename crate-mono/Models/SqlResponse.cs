@@ -1,5 +1,8 @@
+using Crate.Client.Helper;
+using Crate.Client.Models;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 
 namespace Crate.Client
 {
@@ -8,6 +11,13 @@ namespace Crate.Client
 	{
         [JsonProperty("cols")]
 		public string[] Cols { get; set; }
+
+        [JsonProperty("col_types")]
+        [JsonConverter(typeof(SqlColumnTypesConverter))]
+        public List<SqlColumnType> ColumnTypes { get; set; }
+
+        [JsonProperty("duration")]
+        public double Duration { get; set; }
 
         [JsonProperty("rows")]
         public object[][] Rows { get; set; }

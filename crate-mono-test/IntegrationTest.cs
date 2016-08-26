@@ -110,5 +110,42 @@ namespace Crate.Client
 				conn.Execute("drop table foo");
 			}
 		}
+
+        [TestMethod]
+        public void TestSchemaTable()
+        {
+            using (var conn = new CrateConnection())
+            {
+                conn.Open();
+
+                var query =
+                    @"SELECT NULL AS ""undefined""
+                        , TRUE AS ""boolean""
+                        , CAST(0 AS BYTE) AS ""byte""
+                        , CAST(0 AS SHORT) AS ""short""
+                        , CAST(0 AS INTEGER) AS ""integer""
+                        , CAST(0 AS LONG) AS ""long""
+                        , CAST(0 AS FLOAT) AS ""float""
+                        , CAST(0 AS DOUBLE) AS ""double""
+                        , 'string' AS ""string""
+                        , CAST('127.0.0.1' AS IP) AS ""ip""
+                        , CURRENT_TIMESTAMP AS ""timestamp""
+                        , [1, 2, 3] AS ""array""
+                        , CAST('POINT (5 5)' AS geo_point) AS ""geo_point""
+	                    , CAST('POLYGON ((5 5, 10 5, 10 10, 5 10, 5 5))' AS geo_shape) AS ""geo_shape""
+	                    , {} AS ""object""
+                    FROM sys.cluster";
+
+                using (var cmd = new CrateCommand(query, conn))
+                {
+                    var reader = cmd.ExecuteReader();
+
+                    var table = reader.GetSchemaTable();
+
+                    Assert.IsNotNull(table);
+                    Assert.IsTrue(table.Rows.Count == 15);
+                }
+            }
+        }
 	}
 }
