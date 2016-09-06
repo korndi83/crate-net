@@ -1,10 +1,10 @@
-﻿using Crate.Client.Types;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using Crate.Net.Client.Types;
 
-namespace Crate.Client.Helper
+namespace Crate.Net.Client.Helper
 {
     /// <summary>
     /// Crate columns type map (names and .NET types)

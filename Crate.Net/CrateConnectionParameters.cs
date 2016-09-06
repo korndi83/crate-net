@@ -1,8 +1,6 @@
-﻿using Crate.Client.Constants;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Crate.Client
+namespace Crate.Net.Client
 {
     /// <summary>
     /// Crate connection parameters

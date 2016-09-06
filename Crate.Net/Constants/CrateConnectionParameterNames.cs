@@ -1,4 +1,4 @@
-﻿namespace Crate.Client.Constants
+﻿namespace Crate.Net.Client.Constants
 {
     /// <summary>
     /// Crate.IO connection string parameter names

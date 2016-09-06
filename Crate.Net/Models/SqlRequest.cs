@@ -1,7 +1,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace Crate.Client
+namespace Crate.Net.Client.Models
 {
     [Serializable]
 	public class SqlRequest

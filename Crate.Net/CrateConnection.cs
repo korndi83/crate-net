@@ -1,14 +1,11 @@
 using System;
-using System.Data;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Diagnostics;
+using System.Data;
 using System.Threading.Tasks;
-using Crate.Client.Constants;
-using Crate.Client.Models;
-using Crate.Client.Extensions;
+using Crate.Net.Client.Extensions;
+using Crate.Net.Client.Models;
 
-namespace Crate.Client
+namespace Crate.Net.Client
 {
     public class CrateConnection : IDbConnection
     {

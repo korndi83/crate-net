@@ -1,8 +1,8 @@
-using System.Linq;
-using System.Data;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 
-namespace Crate.Client
+namespace Crate.Net.Client
 {
     public class CrateParameterCollection : List<CrateParameter>, IDataParameterCollection
     {

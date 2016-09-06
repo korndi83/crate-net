@@ -6,8 +6,8 @@ open System.IO
 open System.Net
 open ICSharpCode.SharpZipLib.GZip
 open ICSharpCode.SharpZipLib.Tar
-open Crate.Client
-
+open Crate.Net.Client
+open Crate.Net.Client.Models;
 
 module Cluster =
 

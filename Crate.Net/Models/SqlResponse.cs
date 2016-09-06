@@ -1,10 +1,9 @@
-using Crate.Client.Helper;
-using Crate.Client.Models;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using Crate.Net.Client.Helper;
+using Newtonsoft.Json;
 
-namespace Crate.Client
+namespace Crate.Net.Client.Models
 {
     [Serializable]
 	public class SqlResponse

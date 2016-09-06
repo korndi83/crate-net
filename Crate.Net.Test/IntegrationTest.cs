@@ -1,11 +1,11 @@
-using Dapper;
-using System.Linq;
-using Crate.Net.Testing;
-using NUnit.Framework;
 using System;
+using System.Linq;
 using System.Threading;
+using Crate.Net.Testing;
+using Dapper;
+using NUnit.Framework;
 
-namespace Crate.Client
+namespace Crate.Net.Client.Tests
 {
     [TestFixture]
     public class IntegrationTest

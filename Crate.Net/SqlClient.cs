@@ -1,10 +1,11 @@
-using System.Net;
-using Newtonsoft.Json;
-using System.Threading.Tasks;
 using System;
-using Crate.Client.Extensions;
+using System.Net;
+using System.Threading.Tasks;
+using Crate.Net.Client.Extensions;
+using Crate.Net.Client.Models;
+using Newtonsoft.Json;
 
-namespace Crate.Client {
+namespace Crate.Net.Client {
 
     public static class SqlClient
     {

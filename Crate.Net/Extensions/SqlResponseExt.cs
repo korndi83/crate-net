@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Crate.Net.Client.Models;
 
-namespace Crate.Client.Extensions
+namespace Crate.Net.Client.Extensions
 {
     public static class SqlResponseExt
     {

@@ -1,7 +1,7 @@
 using System;
 using System.Data;
 
-namespace Crate.Client
+namespace Crate.Net.Client
 {
     public class CrateParameter : IDbDataParameter
     {

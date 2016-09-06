@@ -1,11 +1,12 @@
 using System;
-using System.Linq;
 using System.Data;
-using System.Threading.Tasks;
+using System.Linq;
 using System.Net;
-using Crate.Client.Extensions;
+using System.Threading.Tasks;
+using Crate.Net.Client.Extensions;
+using Crate.Net.Client.Models;
 
-namespace Crate.Client
+namespace Crate.Net.Client
 {
     public class CrateCommand : IDbCommand
     {

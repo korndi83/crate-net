@@ -1,13 +1,9 @@
-﻿using Crate.Client.Constants;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using Crate.Net.Client.Constants;
 
-namespace Crate.Client.Models
+namespace Crate.Net.Client.Models
 {
     [DebuggerDisplay("<CrateServer {Hostname}:{Port}>")]
     public class CrateServer

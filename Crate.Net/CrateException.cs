@@ -1,7 +1,7 @@
-using System;
 using System.Data.Common;
+using Crate.Net.Client.Models;
 
-namespace Crate.Client
+namespace Crate.Net.Client
 {
 	public class CrateException : DbException
 	{

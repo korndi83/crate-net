@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Crate.Client.Types
+namespace Crate.Net.Client.Types
 {
     /// <summary>
     /// Crate geo_point type

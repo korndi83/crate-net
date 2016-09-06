@@ -1,9 +1,10 @@
-using Crate.Client.Constants;
-using Crate.Client.Helper;
 using System;
 using System.Data;
+using Crate.Net.Client.Constants;
+using Crate.Net.Client.Helper;
+using Crate.Net.Client.Models;
 
-namespace Crate.Client
+namespace Crate.Net.Client
 {
     public class CrateDataReader : IDataReader
     {
@@ -205,7 +206,13 @@ namespace Crate.Client
 
         public int GetOrdinal(string name)
         {
-            return Array.BinarySearch(_sqlResponse.Cols, name);
+            for (var index = 0; index < _sqlResponse.Cols.Length; index++)
+            {
+                if (_sqlResponse.Cols[index].Equals(name, StringComparison.Ordinal))
+                    return index;
+            }
+
+            return -1;
         }
 
         public string GetString(int i)
