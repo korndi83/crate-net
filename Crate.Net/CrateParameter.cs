@@ -31,123 +31,15 @@ namespace Crate.Net.Client
 
 		public byte Precision { get; set; }
 		public byte Scale { get; set; }
-
-		public override bool IsNullable
-		{
-			get
-			{
-				return true;
-			}
-
-			set
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		public override DbType DbType
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-
-			set
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		public override ParameterDirection Direction
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-
-			set
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		public override string ParameterName
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-
-			set
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		public override int Size
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-
-			set
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		public override string SourceColumn
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-
-			set
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		public override bool SourceColumnNullMapping
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-
-			set
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		public override DataRowVersion SourceVersion
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-
-			set
-			{
-				throw new NotImplementedException();
-			}
-		}
-
-		public override object Value
-		{
-			get
-			{
-				throw new NotImplementedException();
-			}
-
-			set
-			{
-				throw new NotImplementedException();
-			}
-		}
+		public override bool IsNullable { get; set; }
+		public override DbType DbType { get; set; }
+		public override ParameterDirection Direction { get; set; }
+		public override string ParameterName { get; set; }
+		public override int Size { get; set; }
+		public override string SourceColumn { get; set; }
+		public override bool SourceColumnNullMapping { get; set; }
+		public override DataRowVersion SourceVersion { get; set; }
+		public override object Value { get; set; }
 
 		private DbType InferType(object value)
 		{
