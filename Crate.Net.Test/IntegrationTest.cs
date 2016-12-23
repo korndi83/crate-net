@@ -12,13 +12,14 @@ namespace Crate.Net.Client.Tests
 	{
 		private static CrateCluster _cluster = null;
 
+#if(RELEASE)
 		[OneTimeSetUp]
 		public static void SetUpCrateCluster()
 		{
 			if(_cluster != null)
 				return;
 
-			_cluster = new CrateCluster("crate-testing", "0.55.4");
+			_cluster = new CrateCluster("crate-testing", "1.0.1");
 			_cluster.Start();
 
 			// sleep for 10 seconds, wait until cluster starts
@@ -30,6 +31,7 @@ namespace Crate.Net.Client.Tests
 		{
 			_cluster?.Stop();
 		}
+#endif
 
 		[Test]
 		public void TestSelect()
@@ -46,7 +48,34 @@ namespace Crate.Net.Client.Tests
 					{
 						reader.Read();
 						var clusterName = reader.GetString(0);
-						Assert.AreEqual(clusterName, "crate");
+						Assert.AreEqual("crate", clusterName);
+					}
+				}
+			}
+		}
+
+		[Test]
+		public void TestSelectWithParameter()
+		{
+			using(var conn = new CrateConnection())
+			{
+				conn.Open();
+
+				using(var cmd = conn.CreateCommand())
+				{
+					cmd.CommandText = "select name from sys.cluster where name = @name";
+
+					var param = cmd.CreateParameter();
+					param.ParameterName = "@name";
+					param.Value = "crate";
+
+					cmd.Parameters.Add(param);
+
+					using(var reader = cmd.ExecuteReader())
+					{
+						reader.Read();
+						var clusterName = reader.GetString(0);
+						Assert.AreEqual("crate", clusterName);
 					}
 				}
 			}

@@ -53,6 +53,12 @@ namespace Crate.Net.Client
 			}
 		}
 
+		/// <summary>
+		/// Adds parameter to the parameter collection
+		/// Beware that for Crate the order of parameters is extremly important!
+		/// </summary>
+		/// <param name="value">CrateParameter which has to be added</param>
+		/// <returns>Last index of the ParameterCollection</returns>
 		public override int Add(object value)
 		{
 			_internalParameterList.Add(CheckAndCastObject(value));
