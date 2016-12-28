@@ -6,6 +6,8 @@ namespace Crate.Net.Client
 {
 	public class CrateParameter : DbParameter
 	{
+		private object _value;
+
 		public CrateParameter()
 		{
 			Direction = ParameterDirection.Input;
@@ -25,8 +27,9 @@ namespace Crate.Net.Client
 			ParameterName = parameterName;
 			Direction = ParameterDirection.Input;
 			SourceVersion = DataRowVersion.Current;
-			DbType = InferType(value);
 			Value = value;
+			// I want to use the Value accessor as nulls should be handled correctly at this point
+			DbType = InferType(Value);
 		}
 
 		public byte Precision { get; set; }
@@ -39,10 +42,25 @@ namespace Crate.Net.Client
 		public override string SourceColumn { get; set; }
 		public override bool SourceColumnNullMapping { get; set; }
 		public override DataRowVersion SourceVersion { get; set; }
-		public override object Value { get; set; }
+
+		public override object Value
+		{
+			get { return _value; }
+
+			set
+			{
+				if(value == null)
+					_value = DBNull.Value;
+				else
+					_value = value;
+			}
+		}
 
 		private DbType InferType(object value)
 		{
+			if(value == null)
+				throw new ArgumentException("Use DBNull.Value instead of null!");
+
 			switch(Type.GetTypeCode(value.GetType()))
 			{
 				case TypeCode.Empty:

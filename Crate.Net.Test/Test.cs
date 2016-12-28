@@ -55,6 +55,15 @@ namespace Crate.Net.Client.Tests
 
 			Assert.AreEqual(expectedResult, sqlRequest.Stmt);
 		}
+
+		[Test]
+		public void TestThatNullValuesHandledCorrectly()
+		{
+			var parameter = new CrateParameter("theName", null);
+
+			Assert.NotNull(parameter);
+			Assert.AreEqual(DBNull.Value, parameter.Value);
+		}
 	}
 }
 
