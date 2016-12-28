@@ -5,15 +5,15 @@ namespace Crate.Net.Client
 {
 	public class CrateException : DbException
 	{
-		public CrateException (string message) 
-            : base(message)
+		public CrateException(string message)
+			: base(message)
 		{
 		}
 
-        public CrateException(SqlError error)
-            : base(error.ToString())
-        {
-        }
+		public CrateException(SqlError error)
+			: base(error.ToString())
+		{
+		}
 	}
 }
 

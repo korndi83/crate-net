@@ -64,6 +64,7 @@ namespace Crate.Net.Client
 			switch(Type.GetTypeCode(value.GetType()))
 			{
 				case TypeCode.Empty:
+					// this should never be reached as a NULL value cannot happen
 					throw new ArgumentException();
 				case TypeCode.Object:
 				case TypeCode.DBNull:
