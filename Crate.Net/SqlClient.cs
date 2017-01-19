@@ -1,5 +1,7 @@
 using System;
 using System.Net;
+using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Crate.Net.Client.Extensions;
 using Crate.Net.Client.Models;
@@ -10,41 +12,45 @@ namespace Crate.Net.Client
 
 	public static class SqlClient
 	{
-		public static async Task<SqlResponse> ExecuteAsync(string sqlUri, SqlRequest request)
+		// as discussed here
+		// https://aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/
+		private static readonly HttpClient _client = new HttpClient();
+
+		public static async Task<SqlResponse> ExecuteAsync(string sqlUri, SqlRequest request, CancellationToken cancellationToken)
 		{
-			using(var client = new WebClient())
+			var data = JsonConvert.SerializeObject(request);
+
+			try
 			{
-				var data = JsonConvert.SerializeObject(request);
+				var content = new StringContent(data, System.Text.Encoding.UTF8, "application/json");
 
-				try
-				{
-					var resp = await client.UploadStringTaskAsync(sqlUri, data);
+				var resp = await _client.PostAsync(sqlUri, content, cancellationToken);
+				var responseContent = await resp.Content.ReadAsStringAsync();
 
-					return JsonConvert.DeserializeObject<SqlResponse>(resp);
-				}
-				catch(WebException ex)
-				{
-					if(ex.Status != WebExceptionStatus.ProtocolError)
-						return ex.ToSqlResponse();
-
-					var response = ex.Response as HttpWebResponse;
-
-					if(response == null)
-						return ex.ToSqlResponse();
-
-					using(var reader = new System.IO.StreamReader(response.GetResponseStream()))
-					{
-						var responseData = await reader.ReadToEndAsync();
-
-						var errorResponse = JsonConvert.DeserializeObject<SqlResponse>(responseData);
-
-						return errorResponse;
-					}
-				}
-				catch(Exception ex)
-				{
+				return JsonConvert.DeserializeObject<SqlResponse>(responseContent);
+			}
+			catch(WebException ex)
+			{
+				if(ex.Status != WebExceptionStatus.ProtocolError)
 					return ex.ToSqlResponse();
+
+				var response = ex.Response as HttpWebResponse;
+
+				if(response == null)
+					return ex.ToSqlResponse();
+
+				using(var reader = new System.IO.StreamReader(response.GetResponseStream()))
+				{
+					var responseData = await reader.ReadToEndAsync();
+
+					var errorResponse = JsonConvert.DeserializeObject<SqlResponse>(responseData);
+
+					return errorResponse;
 				}
+			}
+			catch(Exception ex)
+			{
+				return ex.ToSqlResponse();
 			}
 		}
 	}

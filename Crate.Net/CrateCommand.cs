@@ -34,7 +34,8 @@ namespace Crate.Net.Client
 			try
 			{
 				var task = ExecuteNonQueryAsync();
-				task.Wait();
+				task.ConfigureAwait(false);
+
 				return task.Result;
 			}
 			catch(AggregateException aggrEx)
@@ -45,35 +46,33 @@ namespace Crate.Net.Client
 			}
 		}
 
-		protected async Task<SqlResponse> ExecuteAsync(int currentRetry = 0)
+		protected async Task<SqlResponse> ExecuteAsync(CancellationToken cancellationToken = default(CancellationToken))
 		{
-			var server = _connection.NextServer();
+			// set the max numbers of active servers to 1 - looking into performance problems
+			var server = _connection.ActiveServers[0];
 			try
 			{
 				return await SqlClient.ExecuteAsync(
 						server.SqlUri(),
-						new SqlRequest(CommandText, _parameters.Select(x => x.Value).ToArray()));
+						new SqlRequest(CommandText, _parameters.Select(x => x.Value).ToArray()),
+						cancellationToken);
 			}
 			catch(WebException)
 			{
-				_connection.MarkAsFailed(server);
-				if(currentRetry > 3)
-				{
-					return "Connection retry count exceeded".ToSqlResponse();
-				}
-
-				return await ExecuteAsync(currentRetry++);
+				// the original retry implementation is too trivial
+				// either use a good circuit breaking mechanism or fail fast and hard
+				return "Connection could not be established".ToSqlResponse();
 			}
 		}
 
 		public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
 		{
-			return CrateExecuteNonQueryAsync();
+			return CrateExecuteNonQueryAsync(cancellationToken);
 		}
 
-		private async Task<int> CrateExecuteNonQueryAsync()
+		private async Task<int> CrateExecuteNonQueryAsync(CancellationToken cancellationToken = default(CancellationToken))
 		{
-			var resp = await ExecuteAsync();
+			var resp = await ExecuteAsync(cancellationToken);
 
 			if(resp.Error == null)
 				return resp.RowCount;
@@ -83,21 +82,21 @@ namespace Crate.Net.Client
 
 		protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
 		{
-			return CrateExecuteReader();
+			return CrateExecuteReader(behavior);
 		}
 
 		protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
 		{
-			return CrateExecuteReaderAsync();
+			return CrateExecuteReaderAsync(behavior, cancellationToken);
 		}
 
-		public DbDataReader CrateExecuteReader()
+		public DbDataReader CrateExecuteReader(CommandBehavior behavior = CommandBehavior.Default)
 		{
-			var task = CrateExecuteReaderAsync();
+			var task = CrateExecuteReaderAsync(behavior);
+			task.ConfigureAwait(false);
 
 			try
 			{
-				task.Wait();
 				return task.Result;
 			}
 			catch(AggregateException aggrEx)
@@ -108,9 +107,11 @@ namespace Crate.Net.Client
 			}
 		}
 
-		public async Task<DbDataReader> CrateExecuteReaderAsync()
+		public async Task<DbDataReader> CrateExecuteReaderAsync(CommandBehavior behavior = CommandBehavior.Default, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			var resp = await ExecuteAsync();
+			// TODO: I'm doing nothing with the CommandBehavior atm - not best practise
+
+			var resp = await ExecuteAsync(cancellationToken);
 
 			if(resp.Error == null)
 				return new CrateDataReader(resp);

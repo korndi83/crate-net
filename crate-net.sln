@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crate.Client.Tests", "Crate
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crate.Net.NuGet", "Crate.Net.NuGet\Crate.Net.NuGet.csproj", "{1EE15721-F998-4724-9084-B2A730DC8C49}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crate.Net.Benchmarks", "Crate.Net.Benchmarks\Crate.Net.Benchmarks.csproj", "{F0E8472D-70DB-4E23-A47D-29E19BF54400}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{1EE15721-F998-4724-9084-B2A730DC8C49}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EE15721-F998-4724-9084-B2A730DC8C49}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EE15721-F998-4724-9084-B2A730DC8C49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0E8472D-70DB-4E23-A47D-29E19BF54400}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0E8472D-70DB-4E23-A47D-29E19BF54400}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0E8472D-70DB-4E23-A47D-29E19BF54400}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0E8472D-70DB-4E23-A47D-29E19BF54400}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

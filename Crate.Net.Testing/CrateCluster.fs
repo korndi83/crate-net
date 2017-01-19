@@ -46,7 +46,7 @@ module Cluster =
 
     let execSql hostUri sql =
         let path = Uri(hostUri, "_sql").AbsoluteUri
-        let resp = SqlClient.ExecuteAsync(path, new SqlRequest(sql, Array.empty))
+        let resp = SqlClient.ExecuteAsync(path, new SqlRequest(sql, Array.empty), CancellationToken.None)
         resp.Wait()
 
     let downloadAndCreateProcess version =

@@ -11,11 +11,8 @@ namespace Crate.Net.Client
 	public class CrateConnection : DbConnection
 	{
 		private readonly IList<CrateServer> _allServers;
-		private int _currentServer = 0;
-		private readonly object _lockObj1 = new object();
-		private readonly object _lockObj2 = new object();
-
 		private readonly CrateConnectionParameters _parameters;
+
 		private string _connectionString;
 		private ConnectionState _state;
 
@@ -41,45 +38,6 @@ namespace Crate.Net.Client
 			_state = ConnectionState.Closed;
 		}
 
-		public CrateServer NextServer()
-		{
-			lock(_lockObj1)
-			{
-				var server = ActiveServers[_currentServer];
-				_currentServer++;
-				if(_currentServer >= ActiveServers.Count)
-				{
-					_currentServer = 0;
-				}
-				return server;
-			}
-		}
-
-		public void MarkAsFailed(CrateServer server)
-		{
-			lock(_lockObj1)
-			{
-				if(ActiveServers.Count == 1)
-				{
-					ActiveServers = _allServers;
-				}
-				ActiveServers.Remove(server);
-				Task.Delay(TimeSpan.FromMinutes(3)).ContinueWith(x => AddServer(server));
-				_currentServer = 0;
-			}
-		}
-
-		private void AddServer(CrateServer server)
-		{
-			lock(_lockObj1)
-			{
-				if(!ActiveServers.Contains(server))
-				{
-					ActiveServers.Add(server);
-				}
-			}
-		}
-
 		public override void ChangeDatabase(string databaseName)
 		{
 			throw new NotImplementedException();
@@ -87,10 +45,7 @@ namespace Crate.Net.Client
 
 		public override void Close()
 		{
-			lock(_lockObj2)
-			{
-				_state = ConnectionState.Closed;
-			}
+			_state = ConnectionState.Closed;
 		}
 
 		protected override DbCommand CreateDbCommand()
@@ -100,19 +55,8 @@ namespace Crate.Net.Client
 
 		public override void Open()
 		{
-			lock(_lockObj2)
-			{
-				_state = ConnectionState.Connecting;
-
-				using(var cmd = CreateCommand())
-				{
-					cmd.CommandText = "select id from sys.cluster";
-					var reader = cmd.ExecuteReader();
-					reader.Read();
-				}
-
-				_state = ConnectionState.Open;
-			}
+			// this would be a good place in case we have a strategy for circuit breaking
+			_state = ConnectionState.Open;
 		}
 
 		public override int ConnectionTimeout

@@ -148,11 +148,6 @@ namespace Crate.Net.Client
 			return 0;
 		}
 
-		//public IDataReader GetData(int i)
-		//{
-		//	return null;
-		//}
-
 		public override string GetDataTypeName(int i)
 		{
 			return CrateTypeMap.GetTypeNameById(_sqlResponse.ColumnTypes[i].Types[0]);

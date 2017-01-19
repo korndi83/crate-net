@@ -7,8 +7,9 @@
     <OutputType>Library</OutputType>
     <RootNamespace>CrateTesting</RootNamespace>
     <AssemblyName>Crate.Net.Testing</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <Name>Crate.Net.Testing</Name>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

@@ -12,14 +12,13 @@ namespace Crate.Net.Client.Tests
 	{
 		private static CrateCluster _cluster = null;
 
-#if(RELEASE)
 		[OneTimeSetUp]
 		public static void SetUpCrateCluster()
 		{
 			if(_cluster != null)
 				return;
 
-			_cluster = new CrateCluster("crate-testing", "1.0.1");
+			_cluster = new CrateCluster("crate-testing", "1.0.2");
 			_cluster.Start();
 
 			// sleep for 10 seconds, wait until cluster starts
@@ -31,7 +30,6 @@ namespace Crate.Net.Client.Tests
 		{
 			_cluster?.Stop();
 		}
-#endif
 
 		[Test]
 		public void TestSelect()
