@@ -80,7 +80,7 @@ namespace Crate.Net.Client
 		{
 			try
 			{
-				return CrateExecuteReader(behavior);
+				return CrateExecuteReader(behavior, default(CancellationToken));
 			}
 			catch(AggregateException aggrEx)
 			{
@@ -94,7 +94,7 @@ namespace Crate.Net.Client
 		{
 			// TODO: I'm doing nothing with the CommandBehavior atm - not best practise
 
-			var resp = Execute(cancellationToken);
+			 var resp = Execute(cancellationToken);
 
 			if(resp.Error == null)
 				return new CrateDataReader(resp);
