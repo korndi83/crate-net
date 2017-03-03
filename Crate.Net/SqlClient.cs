@@ -16,7 +16,7 @@ namespace Crate.Net.Client
 		// https://aspnetmonsters.com/2016/08/2016-08-27-httpclientwrong/
 		private static readonly HttpClient _client = new HttpClient();
 
-		public static async Task<SqlResponse> ExecuteAsync(string sqlUri, SqlRequest request, CancellationToken cancellationToken)
+		public static SqlResponse Execute(string sqlUri, SqlRequest request, CancellationToken cancellationToken)
 		{
 			var data = JsonConvert.SerializeObject(request);
 
@@ -24,10 +24,12 @@ namespace Crate.Net.Client
 			{
 				var content = new StringContent(data, System.Text.Encoding.UTF8, "application/json");
 
-				var resp = await _client.PostAsync(sqlUri, content, cancellationToken);
-				var responseContent = await resp.Content.ReadAsStringAsync();
+				var resp = _client.PostAsync(sqlUri, content, cancellationToken);
+				resp.Wait();
+				var responseContent = resp.Result.Content.ReadAsStringAsync();
+				responseContent.Wait();
 
-				return JsonConvert.DeserializeObject<SqlResponse>(responseContent);
+				return JsonConvert.DeserializeObject<SqlResponse>(responseContent.Result);
 			}
 			catch(WebException ex)
 			{
@@ -41,7 +43,7 @@ namespace Crate.Net.Client
 
 				using(var reader = new System.IO.StreamReader(response.GetResponseStream()))
 				{
-					var responseData = await reader.ReadToEndAsync();
+					var responseData = reader.ReadToEnd();
 
 					var errorResponse = JsonConvert.DeserializeObject<SqlResponse>(responseData);
 
