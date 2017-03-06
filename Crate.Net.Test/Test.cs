@@ -44,6 +44,39 @@ namespace Crate.Net.Client.Tests
 		}
 
 		[Test]
+		public void TestGetInt()
+		{
+			var reader = new CrateDataReader(new SqlResponse
+			{
+				Rows = new[] { new object[] { 1L } },
+				Cols = new[] { "flag" },
+			});
+
+			reader.Read();
+
+			Assert.AreEqual((byte)1, reader.GetByte(0));
+			Assert.AreEqual((Int16)1, reader.GetInt16(0));
+			Assert.AreEqual((Int32)1, reader.GetInt32(0));
+			Assert.AreEqual((Int64)1, reader.GetInt64(0));
+		}
+
+		[Test]
+		public void TestGetDouble()
+		{
+			var reader = new CrateDataReader(new SqlResponse
+			{
+				Rows = new[] { new object[] { 1.2D } },
+				Cols = new[] { "flag" },
+			});
+
+			reader.Read();
+
+			Assert.AreEqual(1.2D, reader.GetDouble(0));
+			Assert.AreEqual((float)1.2, reader.GetFloat(0));
+			Assert.AreEqual((decimal)1.2, reader.GetDecimal(0));
+		}
+
+		[Test]
 		public void TestThatStatementParameterPlaceholderGetParsedCorrectly()
 		{
 			var stmt = @"select * from schema.test where name = @name and form_id = @form_id";

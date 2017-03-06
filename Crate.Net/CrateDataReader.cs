@@ -130,7 +130,7 @@ namespace Crate.Net.Client
 
 		public override byte GetByte(int i)
 		{
-			return (byte)_sqlResponse.Rows[_currentRow][i];
+			return (byte)GetInt64(i);
 		}
 
 		public override long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
@@ -160,7 +160,7 @@ namespace Crate.Net.Client
 
 		public override decimal GetDecimal(int i)
 		{
-			return (decimal)_sqlResponse.Rows[_currentRow][i];
+			return (decimal)GetDouble(i);
 		}
 
 		public override double GetDouble(int i)
@@ -175,7 +175,7 @@ namespace Crate.Net.Client
 
 		public override float GetFloat(int i)
 		{
-			return (float)_sqlResponse.Rows[_currentRow][i];
+			return (float)GetDouble(i);
 		}
 
 		public override Guid GetGuid(int i)
@@ -185,12 +185,12 @@ namespace Crate.Net.Client
 
 		public override short GetInt16(int i)
 		{
-			return (short)_sqlResponse.Rows[_currentRow][i];
+			return (short)GetInt64(i);
 		}
 
 		public override int GetInt32(int i)
 		{
-			return (int)_sqlResponse.Rows[_currentRow][i];
+			return (int)GetInt64(i);
 		}
 
 		public override long GetInt64(int i)
